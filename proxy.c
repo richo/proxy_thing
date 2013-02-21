@@ -6,17 +6,17 @@ void usage(void) {
 }
 
 int main(int argc, char** argv) {
-    int client, server;
+    int client_port, server_port;
 
     if (argc < 2) {
         usage();
         exit(1);
     }
 
-    client = atoi(argv[1]);
-    server = atoi(argv[2]);
+    client_port = atoi(argv[1]);
+    server_port = atoi(argv[2]);
 
-    if (client == 0 || server == 0) {
+    if (client_port == 0 || server_port == 0) {
         usage();
         exit(2);
     }
