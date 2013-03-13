@@ -1,4 +1,8 @@
+GCC_OPTS = -D_DEBUG
 all: proxy
 
-proxy: proxy.c
-	gcc -o proxy proxy.c
+debug.o: debug.c
+	gcc ${GCC_OPTS} -c debug.c -o debug.o
+
+proxy: proxy.c debug.o
+	gcc ${GCC_OPTS} debug.o proxy.c -o proxy

@@ -6,6 +6,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+#include "debug.h"
+
 #define MAX_CONCURRENCY 512
 #define LISTEN_BACKLOG 16
 
