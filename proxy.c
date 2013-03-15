@@ -2,8 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/select.h>
 #include <netinet/in.h>
 
 #include "debug.h"
@@ -21,6 +23,7 @@ void usage(void) {
 }
 
 int main(int argc, char** argv) {
+    fd_set rfds;
     int client_port, server_port;
     int client_sock, server_sock;
 
@@ -42,6 +45,12 @@ int main(int argc, char** argv) {
     }
 
     log_debug("Creating server socket");
+    FD_ZERO(&rfds);
+
+    int i
+    for (i = 0; i < MAX_CONCURRENCY; i++)
+        FD_SET(clients[i], &rfds);
+
     server_sock = socket(AF_INET, SOCK_STREAM, 0);
     if (server_sock < 0)
         error("Couldn't create server socket");
@@ -60,21 +69,27 @@ int main(int argc, char** argv) {
 
     /* TODO select(2) loop goes here */
 
-    int _client, _client_len, n;
+    struct timeval tv;
+    int _client, _client_len, n, num;
     char buffer[1024];
 
-    clients[0] = malloc(sizeof(struct sockaddr_in));
-    _client_len = sizeof(clients[0]);
+    tv = {5, 0};
+    num = select(MAX_CONCURRENCY, clients, NULL, NULL, &tv);
 
-    _client = accept(server_sock, (struct sockaddr *) &clients[0], &_client_len);
-    if (_client < 0)
-        error("Couldn't accept test client");
 
-    memset(buffer, 0, 1024);
 
-    n = read(_client, buffer, 1023);
-    if (n < 0)
-        error("Couldn't read bytes from test socket");
+//  clients[0] = malloc(sizeof(struct sockaddr_in));
+//  _client_len = sizeof(clients[0]);
+//
+//  _client = accept(server_sock, (struct sockaddr *) &clients[0], &_client_len);
+//  if (_client < 0)
+//      error("Couldn't accept test client");
+//
+//  memset(buffer, 0, 1024);
+//
+//  n = read(_client, buffer, 1023);
+//  if (n < 0)
+//      error("Couldn't read bytes from test socket");
 
     printf(">> %s\n", buffer);
     fflush(stdout);
