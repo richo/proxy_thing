@@ -41,10 +41,12 @@ int main(int argc, char** argv) {
         exit(2);
     }
 
+    log_debug("Creating server socket");
     server_sock = socket(AF_INET, SOCK_STREAM, 0);
     if (server_sock < 0)
         error("Couldn't create server socket");
 
+    log_debug("Binding socket");
     serv_sock_addr.sin_family = AF_INET;
     serv_sock_addr.sin_addr.s_addr = INADDR_ANY;
     serv_sock_addr.sin_port = htons(server_port);
