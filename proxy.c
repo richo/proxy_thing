@@ -65,9 +65,14 @@ int main(int argc, char** argv) {
     if (listen(server_sock, LISTEN_BACKLOG) < 0)
         error("Couldn't listen on server socket");
 
-    /* For now we're just using the first socket, but this'll be a rotating pool */
+    /* TODO try putting the following code in a loop
+     *          to try re-entrant client select;
+     *          might also want to randomly selecting
+     *          nodes that are part of rfds;
+     *          how would this work?
+     */
 
-    /* TODO select(2) loop goes here */
+    /* TODO fix bugs; this hasn't been tested yet... */
 
     struct timeval tv;
     int _client, _client_len, n, num;
@@ -76,20 +81,28 @@ int main(int argc, char** argv) {
     tv = {5, 0};
     num = select(MAX_CONCURRENCY, clients, NULL, NULL, &tv);
 
+    if (num == -1)
+        error("Couldn't select client socket");
+    else if (num)
+    {
+        for (i = 0; i < MAX_CONCURRENCY; ++i)
+        {
+            if (FD_ISSET(clients[i], &rfds))
+            {
+                clients[i] = malloc(sizeof(struct sockaddr_in));
+                _client_len = sizeof(clients[i]);
+                _client = accept(server_sock, (struct sockaddr *) &clients[i], &_client_len);
+                if (_client < 0)
+                    error("Couldn't accept test client");
+                memset(buffer, 0, 1024);
 
-
-//  clients[0] = malloc(sizeof(struct sockaddr_in));
-//  _client_len = sizeof(clients[0]);
-//
-//  _client = accept(server_sock, (struct sockaddr *) &clients[0], &_client_len);
-//  if (_client < 0)
-//      error("Couldn't accept test client");
-//
-//  memset(buffer, 0, 1024);
-//
-//  n = read(_client, buffer, 1023);
-//  if (n < 0)
-//      error("Couldn't read bytes from test socket");
+                n = read(_client, buffer, 1023);
+                if (n < 0)
+                    error("Couldn't read bytes from test socket");
+            }
+        }
+    }
+    else fprintf(stdout, "did not produce any data\n");
 
     printf(">> %s\n", buffer);
     fflush(stdout);
